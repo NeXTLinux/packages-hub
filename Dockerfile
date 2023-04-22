@@ -1,2 +1,21 @@
-FROM: golang:1.17-alpine
-WORKDIR /app/package-api
+FROM golang:latest
+
+WORKDIR /app
+
+COPY . packages-api
+COPY . packages-filter
+
+WORKDIR /app/packages-filter
+RUN go run ./main.go
+
+WORKDIR /app
+RUN if [ -d "packages-filter/json" ]; then \
+      mv "packages-filter/json" "packages-api/"; \
+    fi
+
+WORKDIR /app/packages-api
+
+EXPOSE 8080
+
+RUN go build -o packages-api
+CMD ["./packages-api"]
